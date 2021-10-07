@@ -1,0 +1,37 @@
+plugins {
+	id 'org.springframework.boot' version '2.5.5'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+
+}
+
+group = 'com.francinetran'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.mitre.synthea:synthea:2.7.0'
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	implementation 'org.apache.kafka:kafka-streams'
+	implementation 'org.apache.flink:flink-core:1.5.0'
+	implementation 'org.apache.flink:flink-connector-kafka-0.11_2.11:1.5.0'
+	implementation 'org.springframework.kafka:spring-kafka'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.kafka:spring-kafka-test'
+	implementation 'org.apache.flink:flink-streaming-java_2.10:1.0.1'
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+	
+}
+
+test {
+	useJUnitPlatform()
+}
+
+configurations.all{
+	exclude module: 'slf4j-log4j12'
+}
