@@ -1,4 +1,4 @@
-package com.francinetran.datapipeline;
+package com.francinetran.datapipeline.stim;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,10 +9,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableAsync
 @SpringBootApplication
 
-public class DataPipelineApplication {
+public class Application {
 
 	public static void main(String[] args) {
-		SpringApplication.run(DataPipelineApplication.class, args);
+		SpringApplication.run(Application.class, args);
 	}
 
 }

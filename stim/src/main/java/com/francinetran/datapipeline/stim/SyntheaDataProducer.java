@@ -1,4 +1,4 @@
-package com.francinetran.datapipeline.stream.producers;
+package com.francinetran.datapipeline.stim;
 
 
 import java.util.concurrent.ExecutorService;
@@ -12,73 +12,63 @@ import org.mitre.synthea.export.Exporter;
 import org.mitre.synthea.helpers.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import com.francinetran.datapipeline.kafka.publishers.Publisher;
 
 
 @Service
-public class DataProducer{
+public class SyntheaDataProducer{
 	
-	private final Logger logger = LoggerFactory.getLogger(DataProducer.class);
-	
-	@Autowired
-	private Publisher publisher;
+	private final Logger logger = LoggerFactory.getLogger(SyntheaDataProducer.class);
 
-	
 
 	Generator.GeneratorOptions options;
 	Exporter.ExporterRuntimeOptions ero;
 	ExecutorService generatorService;
 	Generator generator;
 	
-	DataProducer(){
-		
+	SyntheaDataProducer(){
 	}
 	
 	@PostConstruct
 	public void init() {
 		options = new Generator.GeneratorOptions();
-		options.population = 1000;
+		options.population = 1;
 		Config.set("exporter.fhir.export", "false");
 		Config.set("exporter.hospital.fhir.export", "false");
 		Config.set("exporter.practitioner.fhir.export", "false");
+		Config.set("exporter.years_of_history ",  "1");
 		ero = new Exporter.ExporterRuntimeOptions();
 		ero.enableQueue(Exporter.SupportedFhirVersion.R4);
 		generator = new Generator(options, ero);
 		generatorService = Executors.newFixedThreadPool(1);
-		generatorService.submit(() -> generator.run());
+		
 		
 	}
 
 
-	
-	
-
-	@Scheduled(fixedDelay=200000)
-	public void produce() {
-		
+	public String produceJson() {
+		generatorService.submit(() -> generator.run());
 		// Retrieve the generated records
 		int recordCount = 0;
+		String jsonRecord="";
 		while(recordCount < options.population) {
 		  try {
-		    String jsonRecord = ero.getNextRecord();
+		    jsonRecord = ero.getNextRecord();
 		    recordCount++;
 		    //logger.info(String.format("Sent%s", jsonRecord));
-
-		    publisher.publish( jsonRecord, null);
+		    
+		    //publisher.publish( jsonRecord, "entry");
 		    //logger.info(String.format("#### -> Sent-> %s", jsonRecord));
 		  } catch (InterruptedException ex) {
 		    break;
 		  }
 		}
+		return jsonRecord;
 	}
 
 	
 	@PreDestroy
-	void shutdown() {
+	void preDestroy() {
 		// Shutdown the generator
 		generatorService.shutdownNow();
 		
